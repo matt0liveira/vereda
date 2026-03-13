@@ -17,6 +17,17 @@ itinerariesRouter.post('/generate', async (req: AuthRequest, res: Response) => {
     return res.status(400).json({ error: 'All fields are required' })
   }
 
+  const VALID_BUDGETS = ['economico', 'moderado', 'luxo']
+  const VALID_INTERESTS = ['cultura', 'gastronomia', 'aventura', 'kids-friendly', 'natureza', 'compras']
+
+  if (!VALID_BUDGETS.includes(budget)) {
+    return res.status(400).json({ error: 'Invalid budget value' })
+  }
+
+  if (!Array.isArray(interests) || !interests.every((i: string) => VALID_INTERESTS.includes(i))) {
+    return res.status(400).json({ error: 'Invalid interests value' })
+  }
+
   let content: ItineraryContent
   let status: 'draft' | 'error' = 'draft'
 

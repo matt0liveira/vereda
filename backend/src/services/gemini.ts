@@ -51,7 +51,14 @@ Responda APENAS com um JSON válido no seguinte formato, sem markdown, sem expli
 
 Inclua de 3 a 5 atividades por dia. Respeite o orçamento e os interesses informados.`
 
-  const result = await model.generateContent(prompt)
+  const timeoutPromise = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error('Gemini timeout after 25 seconds')), 25000)
+  )
+
+  const result = await Promise.race([
+    model.generateContent(prompt),
+    timeoutPromise,
+  ])
   const text = result.response.text().trim()
 
   try {

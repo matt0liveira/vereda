@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { useItinerary } from '../hooks/useItinerary'
@@ -5,7 +6,7 @@ import { ItineraryDay } from '../components/Preview/ItineraryDay'
 import { Spinner } from '../components/UI/Spinner'
 import { Button } from '../components/UI/Button'
 import { Badge } from '../components/UI/Badge'
-import { getPdfUrl } from '../services/api'
+import { downloadPdf } from '../services/api'
 
 const BUDGET_LABELS: Record<string, string> = {
   economico: 'Econômico',
@@ -17,6 +18,7 @@ export default function PreviewPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { itinerary, loading, saving, error, updateActivity, deleteActivity, save } = useItinerary(id!)
+  const [pdfLoading, setPdfLoading] = useState(false)
 
   if (loading) return <Spinner message="Carregando roteiro..." />
   if (error || !itinerary) return (
@@ -27,9 +29,13 @@ export default function PreviewPage() {
   )
 
   async function handleSave() {
-    await save()
-    toast.success('Viagem salva com sucesso!')
-    navigate('/dashboard')
+    try {
+      await save()
+      toast.success('Viagem salva com sucesso!')
+      navigate('/dashboard')
+    } catch {
+      toast.error('Erro ao salvar viagem')
+    }
   }
 
   return (
@@ -44,14 +50,22 @@ export default function PreviewPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <a
-            href={getPdfUrl(itinerary.id)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          <Button
+            variant="secondary"
+            loading={pdfLoading}
+            onClick={async () => {
+              setPdfLoading(true)
+              try {
+                await downloadPdf(itinerary.id, itinerary.title)
+              } catch {
+                toast.error('Erro ao gerar PDF')
+              } finally {
+                setPdfLoading(false)
+              }
+            }}
           >
             ⬇ PDF
-          </a>
+          </Button>
           {itinerary.status !== 'saved' && (
             <Button onClick={handleSave} loading={saving}>Salvar viagem</Button>
           )}

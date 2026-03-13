@@ -1,6 +1,15 @@
 import puppeteer from 'puppeteer-core'
 import { Itinerary } from '../types'
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+}
+
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr + 'T00:00:00')
   return date.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
@@ -18,14 +27,14 @@ function buildHtml(itinerary: Itinerary): string {
   const daysHtml = content.days.map(day => {
     const activitiesHtml = day.activities.map(act => `
       <div class="activity">
-        <div class="activity-time">${act.time}</div>
+        <div class="activity-time">${escapeHtml(act.time)}</div>
         <div class="activity-details">
-          <h3>${act.title}</h3>
-          <p>${act.description}</p>
+          <h3>${escapeHtml(act.title)}</h3>
+          <p>${escapeHtml(act.description)}</p>
           <div class="location">
-            <strong>📍 ${act.location.name}</strong><br/>
-            ${act.location.address}<br/>
-            <span class="maps-url">${act.location.mapsUrl}</span>
+            <strong>📍 ${escapeHtml(act.location.name)}</strong><br/>
+            ${escapeHtml(act.location.address)}<br/>
+            <span class="maps-url">${escapeHtml(act.location.mapsUrl)}</span>
           </div>
         </div>
       </div>
@@ -33,7 +42,7 @@ function buildHtml(itinerary: Itinerary): string {
 
     return `
       <div class="day">
-        <h2>Dia ${day.day} — ${formatDate(day.date)}</h2>
+        <h2>Dia ${escapeHtml(String(day.day))} — ${escapeHtml(formatDate(day.date))}</h2>
         ${activitiesHtml}
       </div>
     `
@@ -62,11 +71,11 @@ function buildHtml(itinerary: Itinerary): string {
 </head>
 <body>
   <div class="header">
-    <h1>${title}</h1>
+    <h1>${escapeHtml(title)}</h1>
     <div class="meta">
-      📍 ${destination} &nbsp;|&nbsp;
-      📅 ${formatDate(start_date)} até ${formatDate(end_date)} &nbsp;|&nbsp;
-      💰 ${budgetLabels[budget]}
+      📍 ${escapeHtml(destination)} &nbsp;|&nbsp;
+      📅 ${escapeHtml(formatDate(start_date))} até ${escapeHtml(formatDate(end_date))} &nbsp;|&nbsp;
+      💰 ${escapeHtml(budgetLabels[budget])}
     </div>
   </div>
   ${daysHtml}

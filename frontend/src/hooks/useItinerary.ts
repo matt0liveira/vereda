@@ -14,6 +14,10 @@ export function useItinerary(id: string) {
       .then(setItinerary)
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
   }, [id])
 
   function updateActivity(activityId: string, changes: Partial<{ title: string; description: string }>) {
@@ -57,7 +61,9 @@ export function useItinerary(id: string) {
       const updated = await saveItinerary(id)
       setItinerary(updated)
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Erro ao salvar')
+      const message = e instanceof Error ? e.message : 'Erro ao salvar'
+      setError(message)
+      throw new Error(message)  // re-throw so caller can handle
     } finally {
       setSaving(false)
     }
