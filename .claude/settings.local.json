@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/MatheusVieir_0p7jj2e/.claude/projects/C--travel-ai/memory//**)",
+      "Read(//c/Users/MatheusVieir_0p7jj2e/.claude/projects/C--travel-ai/memory/**)",
+      "Bash(cd /c/travel-ai/frontend && npm install 2>&1)",
+      "Bash(cd /c/travel-ai/backend && npm install 2>&1)",
+      "Bash(git init:*)"
+    ]
+  }
+}
