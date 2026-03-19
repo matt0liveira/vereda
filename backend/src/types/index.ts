@@ -35,6 +35,7 @@ export interface Itinerary {
   content: ItineraryContent
   status: 'draft' | 'saved' | 'error'
   created_at: string
+  cover_image?: string
 }
 
 export interface GenerateItineraryRequest {
