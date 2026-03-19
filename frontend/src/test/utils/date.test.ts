@@ -11,4 +11,10 @@ describe('formatDate', () => {
   it('returns empty string for empty input', () => {
     expect(formatDate('')).toBe('')
   })
+  it('returns the original string when a segment is empty', () => {
+    expect(formatDate('2026--19')).toBe('2026--19')
+  })
+  it('returns the original string for a malformed date with too many segments', () => {
+    expect(formatDate('2026-03-19-extra')).toBe('2026-03-19-extra')
+  })
 })
