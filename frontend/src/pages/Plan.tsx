@@ -111,7 +111,7 @@ export default function PlanPage() {
       <h1 className="mb-8 text-[26px] font-extrabold tracking-[-0.7px] text-content">Planejar Viagem</h1>
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6 rounded-[14px] border-[1.5px] border-surface-border bg-surface p-8">
         {error && (
-          <div className="flex items-center gap-2 rounded-lg border border-status-error-border bg-status-error-bg px-3.5 py-2.5">
+          <div role="alert" className="flex items-center gap-2 rounded-lg border border-status-error-border bg-status-error-bg px-3.5 py-2.5">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2" strokeLinecap="round">
               <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
@@ -134,10 +134,11 @@ export default function PlanPage() {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-1.5 block text-[13px] font-semibold text-content">
+            <label htmlFor="start_date" className="mb-1.5 block text-[13px] font-semibold text-content">
               Data de início <span className="text-status-error-text">*</span>
             </label>
             <input
+              id="start_date"
               type="date"
               value={form.start_date}
               onChange={e => handleStartDateChange(e.target.value)}
@@ -147,10 +148,11 @@ export default function PlanPage() {
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-[13px] font-semibold text-content">
+            <label htmlFor="end_date" className="mb-1.5 block text-[13px] font-semibold text-content">
               Data de fim <span className="text-status-error-text">*</span>
             </label>
             <input
+              id="end_date"
               type="date"
               value={form.end_date}
               min={form.start_date || undefined}

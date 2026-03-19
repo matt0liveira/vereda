@@ -23,6 +23,13 @@ export function DestinationAutocomplete({ value, onChange }: Props) {
     setQuery(value)
   }, [value])
 
+  // Cleanup pending debounce on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
+  }, [])
+
   // Close dropdown on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
