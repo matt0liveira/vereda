@@ -23,10 +23,6 @@ const STATUS_LABELS: Record<string, string> = {
   error:  'Erro',
 }
 
-function getUnsplashUrl(destination: string): string {
-  const query = encodeURIComponent(destination.split(',')[0].trim())
-  return `https://source.unsplash.com/featured/400x200?${query},travel,city`
-}
 
 function PhotoFallback() {
   return (
@@ -56,20 +52,15 @@ export function TripCard({ itinerary, onDelete, view }: TripCardProps) {
       <div className="flex overflow-hidden rounded-[14px] border border-surface-border bg-surface">
         {/* Thumbnail */}
         <div className="relative h-[72px] w-[72px] flex-shrink-0 overflow-hidden">
-          <img
-            src={getUnsplashUrl(itinerary.destination)}
-            alt={itinerary.destination}
-            className="h-full w-full object-cover"
-            onError={e => {
-              const img = e.currentTarget as HTMLImageElement
-              img.style.display = 'none'
-              const fallback = img.nextElementSibling as HTMLElement
-              if (fallback) fallback.style.display = 'flex'
-            }}
-          />
-          <div className="absolute inset-0 hidden">
+          {itinerary.cover_image ? (
+            <img
+              src={itinerary.cover_image}
+              alt={itinerary.destination}
+              className="h-full w-full object-cover"
+            />
+          ) : (
             <PhotoFallback />
-          </div>
+          )}
         </div>
 
         {/* Data */}
@@ -124,20 +115,15 @@ export function TripCard({ itinerary, onDelete, view }: TripCardProps) {
     <div className="overflow-hidden rounded-[14px] border border-surface-border bg-surface transition-shadow hover:shadow-md">
       {/* Photo */}
       <div className="relative h-[130px]">
-        <img
-          src={getUnsplashUrl(itinerary.destination)}
-          alt={itinerary.destination}
-          className="h-full w-full object-cover"
-          onError={e => {
-            const img = e.currentTarget as HTMLImageElement
-            img.style.display = 'none'
-            const fallback = img.nextElementSibling as HTMLElement
-            if (fallback) fallback.style.display = 'flex'
-          }}
-        />
-        <div className="absolute inset-0 hidden">
+        {itinerary.cover_image ? (
+          <img
+            src={itinerary.cover_image}
+            alt={itinerary.destination}
+            className="h-full w-full object-cover"
+          />
+        ) : (
           <PhotoFallback />
-        </div>
+        )}
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 60%)' }} />
         <span className="absolute right-2.5 top-2.5 rounded-full bg-white/90 px-2.5 py-0.5 text-[11px] font-bold text-content">
           {formatDate(itinerary.start_date)} – {formatDate(itinerary.end_date)}
