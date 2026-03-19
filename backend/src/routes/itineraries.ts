@@ -39,13 +39,16 @@ itinerariesRouter.post('/generate', async (req: AuthRequest, res: Response) => {
         activity.id = uuidv4()
       })
     })
-  } catch (_err) {
+  } catch (err) {
+    console.error('[generate] Gemini error:', err)
     // Save error record
-    const { data } = await supabase
+    const { data, error: dbError } = await supabase
       .from('itineraries')
       .insert({ user_id: req.user!.id, title, destination, start_date, end_date, budget, interests, content: {}, status: 'error' })
       .select()
       .single()
+
+    if (dbError) console.error('[generate] DB error saving error record:', dbError)
 
     return res.status(502).json({ error: 'Falha ao gerar roteiro. Tente novamente.', itinerary: data })
   }
@@ -87,11 +90,15 @@ itinerariesRouter.get('/:id', async (req: AuthRequest, res: Response) => {
 
 // PUT /api/itineraries/:id
 itinerariesRouter.put('/:id', async (req: AuthRequest, res: Response) => {
-  const { content } = req.body
+  const { content, cover_image } = req.body
+
+  const updateData: Record<string, unknown> = {}
+  if (content !== undefined) updateData.content = content
+  if (cover_image !== undefined) updateData.cover_image = cover_image
 
   const { data, error } = await supabase
     .from('itineraries')
-    .update({ content })
+    .update(updateData)
     .eq('id', req.params.id)
     .eq('user_id', req.user!.id)
     .select()
@@ -117,6 +124,23 @@ itinerariesRouter.post('/:id/save', async (req: AuthRequest, res: Response) => {
 
 // DELETE /api/itineraries/:id
 itinerariesRouter.delete('/:id', async (req: AuthRequest, res: Response) => {
+  // Fetch cover_image before deleting
+  const { data: existing } = await supabase
+    .from('itineraries')
+    .select('cover_image')
+    .eq('id', req.params.id)
+    .eq('user_id', req.user!.id)
+    .single()
+
+  // Delete Storage file if it came from our bucket
+  if (existing?.cover_image?.includes('/storage/v1/object/public/itinerary-covers/')) {
+    const storagePath = existing.cover_image.split('/storage/v1/object/public/itinerary-covers/')[1]
+    const { error: storageError } = await supabase.storage
+      .from('itinerary-covers')
+      .remove([storagePath])
+    if (storageError) console.error('[delete] Storage cleanup error:', storageError)
+  }
+
   const { error } = await supabase
     .from('itineraries')
     .delete()

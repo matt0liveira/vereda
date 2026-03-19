@@ -12,6 +12,9 @@ vi.mock('../../services/gemini', () => ({ generateItinerary: mockGenerateItinera
 vi.mock('../../middlewares/authMiddleware', () => ({ authMiddleware: mockAuthMiddleware }))
 vi.mock('uuid', () => ({ v4: () => 'mock-uuid' }))
 
+const mockStorageRemove = vi.fn()
+const mockStorageBucket = { remove: mockStorageRemove }
+
 const mockChain = {
   insert: vi.fn().mockReturnThis(),
   select: vi.fn().mockReturnThis(),
@@ -25,6 +28,9 @@ const mockChain = {
 vi.mock('../../services/supabase', () => ({
   supabase: {
     from: vi.fn(() => mockChain),
+    storage: {
+      from: vi.fn(() => mockStorageBucket),
+    },
   },
 }))
 
@@ -112,6 +118,16 @@ describe('PUT /api/itineraries/:id', () => {
       .send({ content: { days: [] } })
     expect(res.status).toBe(200)
   })
+
+  it('updates itinerary with cover_image returns 200', async () => {
+    const updated = { id: 'itin-123', cover_image: 'https://example.com/img.jpg' }
+    mockChain.single.mockResolvedValue({ data: updated, error: null })
+    const res = await request(app)
+      .put('/api/itineraries/itin-123')
+      .send({ cover_image: 'https://example.com/img.jpg' })
+    expect(res.status).toBe(200)
+    expect(res.body.cover_image).toBe('https://example.com/img.jpg')
+  })
 })
 
 describe('POST /api/itineraries/:id/save', () => {
@@ -125,13 +141,30 @@ describe('POST /api/itineraries/:id/save', () => {
 })
 
 describe('DELETE /api/itineraries/:id', () => {
-  it('deletes itinerary', async () => {
-    // The delete chain: .delete().eq('id',...).eq('user_id',...)
-    // Second .eq() must return a promise resolving to { error: null }
+  it('deletes itinerary and returns 204', async () => {
+    // First call: select('cover_image').eq().eq().single() — no cover_image
+    mockChain.single.mockResolvedValueOnce({ data: { cover_image: null }, error: null })
+    // Second call: .delete().eq().eq() — resolves with no error
     mockChain.eq
-      .mockReturnValueOnce(mockChain) // first .eq() returns chain
-      .mockResolvedValueOnce({ error: null }) // second .eq() resolves
+      .mockReturnValueOnce(mockChain) // select chain eq('id')
+      .mockReturnValueOnce(mockChain) // select chain eq('user_id') -> single() handled above
+      .mockReturnValueOnce(mockChain) // delete chain eq('id')
+      .mockResolvedValueOnce({ error: null }) // delete chain eq('user_id')
     const res = await request(app).delete('/api/itineraries/itin-123')
     expect(res.status).toBe(204)
+  })
+
+  it('deletes itinerary with cover_image and cleans up storage', async () => {
+    const coverUrl = 'https://host/storage/v1/object/public/itinerary-covers/user/file.jpg'
+    mockChain.single.mockResolvedValueOnce({ data: { cover_image: coverUrl }, error: null })
+    mockStorageRemove.mockResolvedValueOnce({ error: null })
+    mockChain.eq
+      .mockReturnValueOnce(mockChain)
+      .mockReturnValueOnce(mockChain)
+      .mockReturnValueOnce(mockChain)
+      .mockResolvedValueOnce({ error: null })
+    const res = await request(app).delete('/api/itineraries/itin-123')
+    expect(res.status).toBe(204)
+    expect(mockStorageRemove).toHaveBeenCalledWith(['user/file.jpg'])
   })
 })
