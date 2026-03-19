@@ -167,4 +167,18 @@ describe('DELETE /api/itineraries/:id', () => {
     expect(res.status).toBe(204)
     expect(mockStorageRemove).toHaveBeenCalledWith(['user/file.jpg'])
   })
+
+  it('returns 204 even when Storage remove fails (non-blocking)', async () => {
+    const coverUrl = 'https://host/storage/v1/object/public/itinerary-covers/user/file.jpg'
+    mockChain.single.mockResolvedValueOnce({ data: { cover_image: coverUrl }, error: null })
+    mockStorageRemove.mockResolvedValueOnce({ error: { message: 'Storage error' } })
+    mockChain.eq
+      .mockReturnValueOnce(mockChain)
+      .mockReturnValueOnce(mockChain)
+      .mockReturnValueOnce(mockChain)
+      .mockResolvedValueOnce({ error: null })
+    const res = await request(app).delete('/api/itineraries/itin-123')
+    expect(res.status).toBe(204)
+    expect(mockStorageRemove).toHaveBeenCalledWith(['user/file.jpg'])
+  })
 })
