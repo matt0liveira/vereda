@@ -25,12 +25,12 @@ export function ActivityCard({ activity, onUpdate, onDelete }: ActivityCardProps
   }
 
   return (
-    <div className="flex gap-4 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-      <div className="min-w-[52px] text-sm font-bold text-orange-500">{activity.time}</div>
+    <div className="flex gap-4 rounded-xl border border-surface-border bg-white p-4 shadow-sm">
+      <div className="min-w-[52px] text-sm font-bold text-brand">{activity.time}</div>
       <div className="flex-1 min-w-0">
         {editingTitle ? (
           <input
-            className="mb-1 w-full rounded border border-blue-300 px-2 py-1 text-base font-semibold outline-none focus:border-blue-500"
+            className="mb-1 w-full rounded border border-brand px-2 py-1 text-base font-semibold outline-none focus:border-brand"
             value={title}
             onChange={e => setTitle(e.target.value)}
             onBlur={commitTitle}
@@ -38,7 +38,7 @@ export function ActivityCard({ activity, onUpdate, onDelete }: ActivityCardProps
           />
         ) : (
           <h3
-            className="mb-1 cursor-pointer rounded text-base font-semibold text-gray-900 hover:bg-blue-50 px-1 -ml-1"
+            className="mb-1 cursor-pointer rounded text-base font-semibold text-content hover:bg-brand-muted px-1 -ml-1"
             onClick={() => setEditingTitle(true)}
             title="Clique para editar"
           >{title}</h3>
@@ -46,7 +46,7 @@ export function ActivityCard({ activity, onUpdate, onDelete }: ActivityCardProps
 
         {editingDesc ? (
           <textarea
-            className="mb-2 w-full rounded border border-blue-300 px-2 py-1 text-sm text-gray-600 outline-none focus:border-blue-500"
+            className="mb-2 w-full rounded border border-brand px-2 py-1 text-sm text-content-muted outline-none focus:border-brand"
             value={description}
             rows={3}
             onChange={e => setDescription(e.target.value)}
@@ -55,14 +55,17 @@ export function ActivityCard({ activity, onUpdate, onDelete }: ActivityCardProps
           />
         ) : (
           <p
-            className="mb-2 cursor-pointer rounded text-sm text-gray-600 hover:bg-blue-50 px-1 -ml-1"
+            className="mb-2 cursor-pointer rounded text-sm text-content-muted hover:bg-brand-muted px-1 -ml-1"
             onClick={() => setEditingDesc(true)}
             title="Clique para editar"
           >{description}</p>
         )}
 
-        <div className="text-xs text-gray-400">
-          <span>📍 {activity.location.name} — {activity.location.address}</span>
+        <div className="text-xs text-content-subtle flex items-center gap-1">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block flex-shrink-0">
+            <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+          <span>{activity.location.name} — {activity.location.address}</span>
         </div>
       </div>
       <div className="flex-shrink-0">
