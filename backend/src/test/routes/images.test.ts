@@ -26,4 +26,13 @@ describe('POST /api/images/upload', () => {
       .field('itinerary_id', 'some-id')
     expect(res.status).toBe(400)
   })
+
+  it('returns 400 when file has invalid MIME type', async () => {
+    const res = await request(app)
+      .post('/api/images/upload')
+      .set('Authorization', 'Bearer test')
+      .attach('file', Buffer.from('fake'), { filename: 'test.pdf', contentType: 'application/pdf' })
+      .field('itinerary_id', 'some-id')
+    expect(res.status).toBe(400)
+  })
 })
