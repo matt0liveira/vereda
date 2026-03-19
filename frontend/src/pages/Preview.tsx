@@ -6,8 +6,9 @@ import { ItineraryDay } from '../components/Preview/ItineraryDay'
 import { Spinner } from '../components/UI/Spinner'
 import { Button } from '../components/UI/Button'
 import { Badge, STATUS_BADGE } from '../components/UI/Badge'
-import { downloadPdf } from '../services/api'
+import { downloadPdf, updateItinerary } from '../services/api'
 import { formatDate } from '../utils/date'
+import { ImagePicker } from '../components/UI/ImagePicker'
 
 const BUDGET_LABELS: Record<string, string> = {
   economico: 'Econômico',
@@ -29,6 +30,15 @@ export default function PreviewPage() {
     </div>
   )
 
+  async function handleCoverChange(url: string) {
+    try {
+      await updateItinerary(id!, { cover_image: url })
+      toast.success('Imagem atualizada!')
+    } catch {
+      toast.error('Erro ao atualizar imagem')
+    }
+  }
+
   async function handleSave() {
     try {
       await save()
@@ -47,6 +57,12 @@ export default function PreviewPage() {
       >
         ← Voltar ao formulário
       </button>
+      <ImagePicker
+        destination={itinerary.destination}
+        value={itinerary.cover_image}
+        itineraryId={itinerary.id}
+        onChange={handleCoverChange}
+      />
       <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-content">{itinerary.title}</h1>
