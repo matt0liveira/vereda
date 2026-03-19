@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { Itinerary } from '../../types'
 import { Badge, STATUS_BADGE } from '../UI/Badge'
 import { Button } from '../UI/Button'
+import { formatDate } from '../../utils/date'
 
 interface TripCardProps {
   itinerary: Itinerary
@@ -81,7 +82,7 @@ export function TripCard({ itinerary, onDelete, view }: TripCardProps) {
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.5px] text-content-subtle">Período</p>
               <p className="mt-0.5 text-[13px] font-semibold text-content">
-                {itinerary.start_date} – {itinerary.end_date}
+                {formatDate(itinerary.start_date)} – {formatDate(itinerary.end_date)}
               </p>
             </div>
             <div>
@@ -139,7 +140,7 @@ export function TripCard({ itinerary, onDelete, view }: TripCardProps) {
         </div>
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 60%)' }} />
         <span className="absolute right-2.5 top-2.5 rounded-full bg-white/90 px-2.5 py-0.5 text-[11px] font-bold text-content">
-          {itinerary.start_date} – {itinerary.end_date}
+          {formatDate(itinerary.start_date)} – {formatDate(itinerary.end_date)}
         </span>
       </div>
 

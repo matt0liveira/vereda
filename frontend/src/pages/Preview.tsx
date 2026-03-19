@@ -7,17 +7,12 @@ import { Spinner } from '../components/UI/Spinner'
 import { Button } from '../components/UI/Button'
 import { Badge, STATUS_BADGE } from '../components/UI/Badge'
 import { downloadPdf } from '../services/api'
+import { formatDate } from '../utils/date'
 
 const BUDGET_LABELS: Record<string, string> = {
   economico: 'Econômico',
   moderado: 'Moderado',
   luxo: 'Luxo',
-}
-
-function formatDate(isoDate: string): string {
-  if (!isoDate) return ''
-  const [year, month, day] = isoDate.split('-')
-  return `${day}/${month}/${year}`
 }
 
 export default function PreviewPage() {
