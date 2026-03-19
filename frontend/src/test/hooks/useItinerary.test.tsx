@@ -40,7 +40,7 @@ const mockItinerary = {
 }
 
 describe('useItinerary', () => {
-  beforeEach(() => vi.clearAllMocks())
+  beforeEach(() => { vi.clearAllMocks() })
 
   it('fetches itinerary by id', async () => {
     mockFetchItinerary.mockResolvedValue(mockItinerary)
