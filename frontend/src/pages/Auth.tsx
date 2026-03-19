@@ -37,7 +37,7 @@ export default function AuthPage() {
 
   return (
     <div className="flex min-h-[calc(100vh-60px)] items-center justify-center bg-surface-bg px-4 py-12">
-      <div className="w-full max-w-3xl overflow-hidden rounded-2xl border border-surface-border shadow-sm">
+      <div className="w-full max-w-3xl overflow-hidden rounded-[14px] border border-surface-border shadow-sm">
         <div className="grid grid-cols-1 md:grid-cols-2">
           {/* Left panel */}
           <div

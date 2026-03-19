@@ -33,7 +33,7 @@ function PhotoFallback() {
       className="flex h-full w-full items-center justify-center"
       style={{ background: 'linear-gradient(135deg, #FED7AA, #EA580C)' }}
     >
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
         <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
         <line x1="8" y1="2" x2="8" y2="18"/>
         <line x1="16" y1="6" x2="16" y2="22"/>
@@ -52,7 +52,7 @@ export function TripCard({ itinerary, onDelete, view }: TripCardProps) {
 
   if (view === 'list') {
     return (
-      <div className="flex overflow-hidden rounded-xl border border-surface-border bg-surface">
+      <div className="flex overflow-hidden rounded-[14px] border border-surface-border bg-surface">
         {/* Thumbnail */}
         <div className="relative h-[72px] w-[72px] flex-shrink-0 overflow-hidden">
           <img

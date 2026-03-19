@@ -88,7 +88,7 @@ export default function DashboardPage() {
       ) : itineraries.length === 0 ? (
         <EmptyState />
       ) : view === 'grid' ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-[14px] sm:grid-cols-2 lg:grid-cols-3">
           {itineraries.map(it => (
             <TripCard key={it.id} itinerary={it} onDelete={handleDelete} view="grid" />
           ))}

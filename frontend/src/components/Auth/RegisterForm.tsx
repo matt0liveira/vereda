@@ -26,7 +26,7 @@ export function RegisterForm({ onRegister }: RegisterFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       <div>
         <h2 className="text-[22px] font-extrabold tracking-[-0.5px] text-content">
           Criar conta
