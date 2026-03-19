@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { generateItinerary } from '../services/api'
+import { generateItinerary, uploadCoverImage, updateItinerary } from '../services/api'
 import { Budget, Interest, GenerateItineraryInput } from '../types'
 import { Button } from '../components/UI/Button'
 import { Input } from '../components/UI/Input'
 import { Spinner } from '../components/UI/Spinner'
 import { DestinationAutocomplete } from '../components/UI/DestinationAutocomplete'
+import { ImagePicker } from '../components/UI/ImagePicker'
 
 const INTERESTS: { value: Interest; label: string }[] = [
   { value: 'cultura', label: 'Cultura' },
@@ -38,6 +39,8 @@ export default function PlanPage() {
   const [loading, setLoading] = useState(false)
   const [slowWarning, setSlowWarning] = useState(false)
   const [error, setError] = useState('')
+  const [coverFile, setCoverFile] = useState<File | null>(null)
+  const [coverUrl, setCoverUrl] = useState('')
   const [form, setForm] = useState<GenerateItineraryInput>(loadSavedForm)
 
   useEffect(() => {
@@ -83,6 +86,27 @@ export default function PlanPage() {
 
     try {
       const itinerary = await generateItinerary(form)
+
+      // Determine final cover_image
+      let finalCoverUrl: string | undefined
+      if (coverFile) {
+        try {
+          finalCoverUrl = await uploadCoverImage(itinerary.id, coverFile)
+        } catch {
+          toast('Não foi possível salvar a imagem de capa.', { icon: '⚠️' })
+        }
+      } else if (coverUrl && !coverUrl.startsWith('blob:')) {
+        finalCoverUrl = coverUrl
+      }
+
+      if (finalCoverUrl) {
+        try {
+          await updateItinerary(itinerary.id, { cover_image: finalCoverUrl })
+        } catch {
+          // Non-blocking — itinerary was created successfully
+        }
+      }
+
       toast.success('Roteiro gerado com sucesso!')
       navigate(`/preview/${itinerary.id}`)
     } catch (err: unknown) {
@@ -130,6 +154,13 @@ export default function PlanPage() {
         <DestinationAutocomplete
           value={form.destination}
           onChange={dest => setForm(p => ({ ...p, destination: dest }))}
+        />
+
+        <ImagePicker
+          destination={form.destination}
+          value={coverUrl}
+          onChange={setCoverUrl}
+          onFileSelected={setCoverFile}
         />
 
         <div className="grid gap-4 sm:grid-cols-2">
