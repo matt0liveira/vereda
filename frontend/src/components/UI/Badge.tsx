@@ -1,14 +1,28 @@
-interface BadgeProps {
-  label: string
-  color?: 'blue' | 'orange' | 'green' | 'gray'
+type BadgeVariant = 'planned' | 'draft' | 'done' | 'error'
+
+// Map DB status values → visual variants
+export const STATUS_BADGE: Record<string, BadgeVariant> = {
+  saved:  'planned',
+  draft:  'draft',
+  done:   'done',
+  error:  'error',
 }
 
-export function Badge({ label, color = 'blue' }: BadgeProps) {
-  const colors = {
-    blue: 'bg-blue-100 text-blue-700',
-    orange: 'bg-orange-100 text-orange-700',
-    green: 'bg-green-100 text-green-700',
-    gray: 'bg-gray-100 text-gray-700',
+interface BadgeProps {
+  variant?: BadgeVariant
+  label: string
+}
+
+export function Badge({ variant = 'draft', label }: BadgeProps) {
+  const styles: Record<BadgeVariant, string> = {
+    planned: 'bg-status-planned-bg text-status-planned-text',
+    draft:   'bg-status-draft-bg text-status-draft-text',
+    done:    'bg-status-done-bg text-status-done-text',
+    error:   'bg-status-error-bg text-status-error-text',
   }
-  return <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${colors[color]}`}>{label}</span>
+  return (
+    <span className={`inline-block rounded-full px-2.5 py-0.5 text-[11px] font-semibold tracking-[0.5px] ${styles[variant]}`}>
+      {label}
+    </span>
+  )
 }

@@ -5,13 +5,19 @@ import { useItinerary } from '../hooks/useItinerary'
 import { ItineraryDay } from '../components/Preview/ItineraryDay'
 import { Spinner } from '../components/UI/Spinner'
 import { Button } from '../components/UI/Button'
-import { Badge } from '../components/UI/Badge'
+import { Badge, STATUS_BADGE } from '../components/UI/Badge'
 import { downloadPdf } from '../services/api'
 
 const BUDGET_LABELS: Record<string, string> = {
   economico: 'Econômico',
   moderado: 'Moderado',
   luxo: 'Luxo',
+}
+
+function formatDate(isoDate: string): string {
+  if (!isoDate) return ''
+  const [year, month, day] = isoDate.split('-')
+  return `${day}/${month}/${year}`
 }
 
 export default function PreviewPage() {
@@ -40,13 +46,19 @@ export default function PreviewPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
+      <button
+        onClick={() => navigate('/plan')}
+        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
+      >
+        ← Voltar ao formulário
+      </button>
       <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">{itinerary.title}</h1>
           <p className="mt-1 text-gray-500">
             📍 {itinerary.destination} &nbsp;·&nbsp;
-            📅 {itinerary.start_date} – {itinerary.end_date} &nbsp;·&nbsp;
-            <Badge label={BUDGET_LABELS[itinerary.budget]} color="blue" />
+            📅 {formatDate(itinerary.start_date)} – {formatDate(itinerary.end_date)} &nbsp;·&nbsp;
+            <Badge label={BUDGET_LABELS[itinerary.budget]} variant="planned" />
           </p>
         </div>
         <div className="flex gap-2">
@@ -70,7 +82,7 @@ export default function PreviewPage() {
             <Button onClick={handleSave} loading={saving}>Salvar viagem</Button>
           )}
           {itinerary.status === 'saved' && (
-            <Badge label="Salvo" color="green" />
+            <Badge label="Salvo" variant={STATUS_BADGE['saved']} />
           )}
         </div>
       </div>

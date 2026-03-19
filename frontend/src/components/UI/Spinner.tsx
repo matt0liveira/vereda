@@ -4,9 +4,9 @@ interface SpinnerProps {
 
 export function Spinner({ message }: SpinnerProps) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 py-12">
-      <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
-      {message && <p className="text-sm text-gray-600">{message}</p>}
+    <div className="flex flex-col items-center gap-3">
+      <div className="h-8 w-8 animate-spin rounded-full border-[3px] border-surface-border border-t-brand" />
+      {message && <p className="text-sm text-content-muted">{message}</p>}
     </div>
   )
 }

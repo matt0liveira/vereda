@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Itinerary } from '../../types'
-import { Badge } from '../UI/Badge'
+import { Badge, STATUS_BADGE } from '../UI/Badge'
 import { Button } from '../UI/Button'
 
 interface TripCardProps {
@@ -24,7 +24,7 @@ export function TripCard({ itinerary, onDelete }: TripCardProps) {
         </div>
         <Badge
           label={itinerary.status === 'saved' ? 'Salvo' : 'Rascunho'}
-          color={itinerary.status === 'saved' ? 'green' : 'gray'}
+          variant={STATUS_BADGE[itinerary.status] ?? 'draft'}
         />
       </div>
       <div className="flex items-center gap-2 text-xs text-gray-400">
