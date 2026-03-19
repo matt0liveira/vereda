@@ -143,7 +143,7 @@ export default function PlanPage() {
               onChange={e => handleStartDateChange(e.target.value)}
               required
               aria-label="Data de início"
-              className="w-full rounded-lg border border-surface-border bg-surface-bg px-3 py-2.5 text-sm text-content shadow-sm transition focus:border-brand focus:outline-none"
+              className="w-full rounded-[9px] border-[1.5px] px-3.5 py-2.5 text-sm text-content outline-none transition-colors placeholder:text-content-subtle border-surface-border bg-surface-bg focus:border-brand focus:bg-surface"
             />
           </div>
           <div>
@@ -157,7 +157,7 @@ export default function PlanPage() {
               onChange={e => setForm(p => ({ ...p, end_date: e.target.value }))}
               required
               aria-label="Data de fim"
-              className="w-full rounded-lg border border-surface-border bg-surface-bg px-3 py-2.5 text-sm text-content shadow-sm transition focus:border-brand focus:outline-none disabled:cursor-not-allowed disabled:bg-surface-bg disabled:text-content-muted"
+              className="w-full rounded-[9px] border-[1.5px] px-3.5 py-2.5 text-sm text-content outline-none transition-colors placeholder:text-content-subtle border-surface-border bg-surface-bg focus:border-brand focus:bg-surface disabled:cursor-not-allowed disabled:bg-surface-bg disabled:text-content-muted"
             />
             {form.start_date && form.end_date && form.end_date < form.start_date && (
               <p className="mt-1 text-xs text-status-error-text">A data de fim deve ser igual ou posterior à de início</p>
@@ -171,10 +171,10 @@ export default function PlanPage() {
             {BUDGETS.map(b => (
               <label
                 key={b.value}
-                className={`flex flex-1 cursor-pointer flex-col items-center justify-center rounded-lg border-2 px-2 py-3 text-center transition-colors ${
+                className={`flex flex-1 cursor-pointer flex-col items-center justify-center rounded-[10px] border-[1.5px] px-[10px] py-[14px] text-center transition-colors ${
                   form.budget === b.value
-                    ? 'border-brand bg-brand-muted text-brand-dark'
-                    : 'border-surface-border bg-surface-bg text-content hover:border-surface-border-filled'
+                    ? 'border-brand bg-brand-muted'
+                    : 'border-surface-border bg-surface-bg'
                 }`}
               >
                 <input
@@ -185,8 +185,8 @@ export default function PlanPage() {
                   onChange={() => setForm(p => ({ ...p, budget: b.value }))}
                   className="sr-only"
                 />
-                <span className="text-sm font-semibold">{b.label}</span>
-                <span className={`mt-0.5 text-xs ${form.budget === b.value ? 'text-brand-dark' : 'text-content-muted'}`}>
+                <span className={`text-[13px] font-bold ${form.budget === b.value ? 'text-brand-dark' : 'text-content'}`}>{b.label}</span>
+                <span className={`mt-0.5 text-[11px] ${form.budget === b.value ? 'text-brand' : 'text-content-subtle'}`}>
                   {b.description}
                 </span>
               </label>
@@ -202,10 +202,10 @@ export default function PlanPage() {
                 key={i.value}
                 type="button"
                 onClick={() => toggleInterest(i.value)}
-                className={`rounded-full border px-3 py-1 text-sm transition-colors ${
+                className={`rounded-[20px] border-[1.5px] px-[14px] py-[7px] text-[13px] font-medium transition-colors ${
                   form.interests.includes(i.value)
                     ? 'border-brand bg-brand-muted text-brand-muted-text font-semibold'
-                    : 'border-surface-border bg-surface-bg text-content-muted font-medium hover:border-surface-border-filled hover:text-content'
+                    : 'border-surface-border bg-surface-bg text-content-muted hover:border-surface-border-filled hover:text-content'
                 }`}
               >
                 {i.label}
@@ -214,7 +214,12 @@ export default function PlanPage() {
           </div>
         </div>
 
-        <Button type="submit" className="mt-2 w-full py-3 text-base">Gerar Roteiro</Button>
+        <Button type="submit" className="mt-2 w-full py-3 gap-2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="5 3 19 12 5 21 5 3" fill="white" stroke="white"/>
+          </svg>
+          Gerar Roteiro
+        </Button>
       </form>
     </div>
   )

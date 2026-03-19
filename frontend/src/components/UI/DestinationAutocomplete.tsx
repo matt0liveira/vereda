@@ -141,7 +141,7 @@ export function DestinationAutocomplete({ value, onChange }: Props) {
                     <circle cx="12" cy="10" r="3"/>
                   </svg>
                   <span className="flex flex-col">
-                    <span className="font-medium">{main}</span>
+                    <span className="font-normal">{main}</span>
                     {sub && <span className="truncate text-xs text-content-muted">{sub}</span>}
                   </span>
                 </button>
