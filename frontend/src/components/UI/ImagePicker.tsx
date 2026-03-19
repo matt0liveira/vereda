@@ -58,6 +58,7 @@ export function ImagePicker({ destination, value, itineraryId, onChange, onFileS
       setUploadLoading(true)
       try {
         const url = await uploadCoverImage(itineraryId, file)
+        setPreviewUrl(url)
         onChange(url)
       } catch {
         setUploadError('Falha ao enviar imagem. Tente novamente.')
