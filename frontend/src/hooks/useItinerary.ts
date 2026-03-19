@@ -36,7 +36,7 @@ export function useItinerary(id: string) {
 
     if (debounceRef.current) clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(() => {
-      updateItinerary(id, newContent).catch(e => setError(e.message))
+      updateItinerary(id, { content: newContent }).catch(e => setError(e.message))
     }, 500)
   }
 
@@ -52,7 +52,7 @@ export function useItinerary(id: string) {
     }
 
     setItinerary(prev => prev ? { ...prev, content: newContent } : null)
-    updateItinerary(id, newContent).catch(e => setError(e.message))
+    updateItinerary(id, { content: newContent }).catch(e => setError(e.message))
   }
 
   async function save() {
