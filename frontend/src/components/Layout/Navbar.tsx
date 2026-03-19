@@ -31,8 +31,8 @@ export function Navbar() {
   }
 
   return (
-    <nav className="border-b border-surface-border bg-surface">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-0 h-[60px]">
+    <nav className="border-b-[1.5px] border-surface-border bg-surface">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-8 py-0 h-[60px]">
         <Link to="/" className="flex items-center gap-2.5 no-underline">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand">
             <CompassIcon />
