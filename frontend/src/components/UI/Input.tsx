@@ -15,7 +15,7 @@ export function Input({ label, hint, error, className = '', ...props }: InputPro
       )}
       {hint && <p className="text-xs text-content-subtle -mt-0.5">{hint}</p>}
       <input
-        className={`w-full rounded-[9px] border px-3.5 py-2.5 text-sm text-content outline-none transition-colors placeholder:text-content-subtle
+        className={`w-full rounded-[9px] border-[1.5px] px-3.5 py-2.5 text-sm text-content outline-none transition-colors placeholder:text-content-subtle
           ${error
             ? 'border-status-error-text bg-surface focus:border-status-error-text'
             : 'border-surface-border bg-surface-bg focus:border-brand focus:bg-surface'
