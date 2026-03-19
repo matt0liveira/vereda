@@ -32,15 +32,17 @@ export function Landing() {
         </p>
 
         <div className="flex items-center justify-center gap-3">
-          <Link to="/auth">
-            <button className="rounded-[10px] bg-brand px-7 py-3.5 text-[15px] font-bold text-white transition-colors hover:bg-brand-dark">
-              Planejar agora
-            </button>
+          <Link
+            to="/auth"
+            className="rounded-[10px] bg-brand px-7 py-3.5 text-[15px] font-bold text-white transition-colors hover:bg-brand-dark"
+          >
+            Planejar agora
           </Link>
-          <Link to="/auth">
-            <button className="rounded-[10px] border-[1.5px] border-surface-border bg-surface px-7 py-3.5 text-[15px] font-bold text-content transition-colors hover:border-surface-border-filled">
-              Ver exemplo
-            </button>
+          <Link
+            to="/auth"
+            className="rounded-[10px] border-[1.5px] border-surface-border bg-surface px-7 py-3.5 text-[15px] font-bold text-content transition-colors hover:border-surface-border-filled"
+          >
+            Criar conta
           </Link>
         </div>
       </div>

@@ -25,9 +25,13 @@ export function Navbar() {
   const navigate = useNavigate()
 
   async function handleLogout() {
-    await logout()
-    toast.success('Até logo!')
-    navigate('/')
+    try {
+      await logout()
+      toast.success('Até logo!')
+      navigate('/')
+    } catch {
+      toast.error('Erro ao sair. Tente novamente.')
+    }
   }
 
   return (
