@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { generateItinerary } from '../services/api'
@@ -6,6 +6,7 @@ import { Budget, Interest, GenerateItineraryInput } from '../types'
 import { Button } from '../components/UI/Button'
 import { Input } from '../components/UI/Input'
 import { Spinner } from '../components/UI/Spinner'
+import { DestinationAutocomplete } from '../components/UI/DestinationAutocomplete'
 
 const INTERESTS: { value: Interest; label: string }[] = [
   { value: 'cultura', label: 'Cultura' },
@@ -16,25 +17,34 @@ const INTERESTS: { value: Interest; label: string }[] = [
   { value: 'compras', label: 'Compras' },
 ]
 
-const BUDGETS: { value: Budget; label: string }[] = [
-  { value: 'economico', label: 'Econômico' },
-  { value: 'moderado', label: 'Moderado' },
-  { value: 'luxo', label: 'Luxo' },
+const BUDGETS: { value: Budget; label: string; description: string }[] = [
+  { value: 'economico', label: 'Econômico', description: 'até R$\u00a0300/dia' },
+  { value: 'moderado', label: 'Moderado', description: 'R$\u00a0300–800/dia' },
+  { value: 'luxo', label: 'Luxo', description: 'acima de R$\u00a0800/dia' },
 ]
+
+const FORM_KEY = 'travel-ai:plan-form'
+
+function loadSavedForm(): GenerateItineraryInput {
+  try {
+    const saved = sessionStorage.getItem(FORM_KEY)
+    if (saved) return JSON.parse(saved)
+  } catch {}
+  return { title: '', destination: '', start_date: '', end_date: '', budget: 'moderado', interests: [] }
+}
 
 export default function PlanPage() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [slowWarning, setSlowWarning] = useState(false)
   const [error, setError] = useState('')
-  const [form, setForm] = useState<GenerateItineraryInput>({
-    title: '',
-    destination: '',
-    start_date: '',
-    end_date: '',
-    budget: 'moderado',
-    interests: [],
-  })
+  const [form, setForm] = useState<GenerateItineraryInput>(loadSavedForm)
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(FORM_KEY, JSON.stringify(form))
+    } catch {}
+  }, [form])
 
   function toggleInterest(interest: Interest) {
     setForm(prev => ({
@@ -45,12 +55,26 @@ export default function PlanPage() {
     }))
   }
 
+  function handleStartDateChange(value: string) {
+    setForm(prev => ({
+      ...prev,
+      start_date: value,
+      // Reset end_date if it's before the new start_date
+      end_date: prev.end_date && prev.end_date < value ? '' : prev.end_date,
+    }))
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
 
     if (!form.title || !form.destination || !form.start_date || !form.end_date) {
       setError('Preencha todos os campos obrigatórios')
+      return
+    }
+
+    if (form.end_date < form.start_date) {
+      setError('A data de fim não pode ser anterior à data de início')
       return
     }
 
@@ -76,7 +100,7 @@ export default function PlanPage() {
       <div className="flex min-h-[80vh] items-center justify-center">
         <div className="text-center">
           <Spinner message="Gerando seu roteiro..." />
-          {slowWarning && <p className="mt-2 text-sm text-gray-500">Ainda processando...</p>}
+          {slowWarning && <p className="mt-2 text-sm text-content-muted">Ainda processando...</p>}
         </div>
       </div>
     )
@@ -84,39 +108,105 @@ export default function PlanPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
-      <h1 className="mb-8 text-3xl font-bold text-gray-900">Planejar Viagem</h1>
-      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6 rounded-2xl bg-white p-8 shadow-lg">
-        {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
+      <h1 className="mb-8 text-[26px] font-extrabold tracking-[-0.7px] text-content">Planejar Viagem</h1>
+      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6 rounded-[14px] border-[1.5px] border-surface-border bg-surface p-8">
+        {error && (
+          <div className="flex items-center gap-2 rounded-lg border border-status-error-border bg-status-error-bg px-3.5 py-2.5">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2" strokeLinecap="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <p className="text-[13px] text-status-error-text">{error}</p>
+          </div>
+        )}
 
-        <Input label="Título da viagem" value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} required aria-label="Título" />
-        <Input label="Destino" value={form.destination} onChange={e => setForm(p => ({ ...p, destination: e.target.value }))} required placeholder="Ex: Paris, França" aria-label="Destino" />
+        <Input
+          label="Título da viagem"
+          value={form.title}
+          onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
+          required
+          aria-label="Título"
+        />
+
+        <DestinationAutocomplete
+          value={form.destination}
+          onChange={dest => setForm(p => ({ ...p, destination: dest }))}
+        />
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <Input label="Data de início" type="date" value={form.start_date} onChange={e => setForm(p => ({ ...p, start_date: e.target.value }))} required aria-label="Data de início" />
-          <Input label="Data de fim" type="date" value={form.end_date} onChange={e => setForm(p => ({ ...p, end_date: e.target.value }))} required aria-label="Data de fim" />
+          <div>
+            <label className="mb-1.5 block text-[13px] font-semibold text-content">
+              Data de início <span className="text-status-error-text">*</span>
+            </label>
+            <input
+              type="date"
+              value={form.start_date}
+              onChange={e => handleStartDateChange(e.target.value)}
+              required
+              aria-label="Data de início"
+              className="w-full rounded-lg border border-surface-border bg-surface-bg px-3 py-2.5 text-sm text-content shadow-sm transition focus:border-brand focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-[13px] font-semibold text-content">
+              Data de fim <span className="text-status-error-text">*</span>
+            </label>
+            <input
+              type="date"
+              value={form.end_date}
+              min={form.start_date || undefined}
+              onChange={e => setForm(p => ({ ...p, end_date: e.target.value }))}
+              required
+              aria-label="Data de fim"
+              className="w-full rounded-lg border border-surface-border bg-surface-bg px-3 py-2.5 text-sm text-content shadow-sm transition focus:border-brand focus:outline-none disabled:cursor-not-allowed disabled:bg-surface-bg disabled:text-content-muted"
+            />
+            {form.start_date && form.end_date && form.end_date < form.start_date && (
+              <p className="mt-1 text-xs text-status-error-text">A data de fim deve ser igual ou posterior à de início</p>
+            )}
+          </div>
         </div>
 
         <div>
-          <p className="mb-2 text-sm font-medium text-gray-700">Orçamento</p>
+          <p className="mb-2 text-[11px] font-bold uppercase tracking-[1px] text-content-subtle">Orçamento</p>
           <div className="flex gap-3">
             {BUDGETS.map(b => (
-              <label key={b.value} className={`flex flex-1 cursor-pointer items-center justify-center rounded-lg border-2 py-2 text-sm font-medium transition-colors ${form.budget === b.value ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
-                <input type="radio" name="budget" value={b.value} checked={form.budget === b.value} onChange={() => setForm(p => ({ ...p, budget: b.value }))} className="sr-only" />
-                {b.label}
+              <label
+                key={b.value}
+                className={`flex flex-1 cursor-pointer flex-col items-center justify-center rounded-lg border-2 px-2 py-3 text-center transition-colors ${
+                  form.budget === b.value
+                    ? 'border-brand bg-brand-muted text-brand-dark'
+                    : 'border-surface-border bg-surface-bg text-content hover:border-surface-border-filled'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="budget"
+                  value={b.value}
+                  checked={form.budget === b.value}
+                  onChange={() => setForm(p => ({ ...p, budget: b.value }))}
+                  className="sr-only"
+                />
+                <span className="text-sm font-semibold">{b.label}</span>
+                <span className={`mt-0.5 text-xs ${form.budget === b.value ? 'text-brand-dark' : 'text-content-muted'}`}>
+                  {b.description}
+                </span>
               </label>
             ))}
           </div>
         </div>
 
         <div>
-          <p className="mb-2 text-sm font-medium text-gray-700">Interesses</p>
+          <p className="mb-2 text-[11px] font-bold uppercase tracking-[1px] text-content-subtle">Interesses</p>
           <div className="flex flex-wrap gap-2">
             {INTERESTS.map(i => (
               <button
                 key={i.value}
                 type="button"
                 onClick={() => toggleInterest(i.value)}
-                className={`rounded-full border px-3 py-1 text-sm font-medium transition-colors ${form.interests.includes(i.value) ? 'border-orange-500 bg-orange-50 text-orange-600' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
+                className={`rounded-full border px-3 py-1 text-sm transition-colors ${
+                  form.interests.includes(i.value)
+                    ? 'border-brand bg-brand-muted text-brand-muted-text font-semibold'
+                    : 'border-surface-border bg-surface-bg text-content-muted font-medium hover:border-surface-border-filled hover:text-content'
+                }`}
               >
                 {i.label}
               </button>
@@ -124,7 +214,7 @@ export default function PlanPage() {
           </div>
         </div>
 
-        <Button type="submit" className="mt-2 w-full py-3 text-base">Gerar Roteiro ✨</Button>
+        <Button type="submit" className="mt-2 w-full py-3 text-base">Gerar Roteiro</Button>
       </form>
     </div>
   )
