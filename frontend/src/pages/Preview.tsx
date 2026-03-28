@@ -52,10 +52,10 @@ export default function PreviewPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
       <button
-        onClick={() => navigate('/plan')}
+        onClick={() => navigate(`/plan/${itinerary.id}`)}
         className="mb-6 flex items-center gap-1.5 text-sm text-content-muted hover:text-content transition-colors"
       >
-        ← Voltar ao formulário
+        ← Editar formulário
       </button>
       <ImagePicker
         destination={itinerary.destination}
@@ -63,7 +63,7 @@ export default function PreviewPage() {
         itineraryId={itinerary.id}
         onChange={handleCoverChange}
       />
-      <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+      <div className="mt-6 mb-8 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-content">{itinerary.title}</h1>
           <p className="mt-1 text-content-muted flex items-center flex-wrap gap-1">
@@ -82,10 +82,12 @@ export default function PreviewPage() {
           <Button
             variant="secondary"
             loading={pdfLoading}
+            className="gap-2 whitespace-nowrap"
             onClick={async () => {
               setPdfLoading(true)
               try {
                 await downloadPdf(itinerary.id, itinerary.title)
+                toast.success('PDF baixado com sucesso!')
               } catch {
                 toast.error('Erro ao gerar PDF')
               } finally {
@@ -93,7 +95,12 @@ export default function PreviewPage() {
               }
             }}
           >
-            ⬇ PDF
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            PDF
           </Button>
           {itinerary.status !== 'saved' && (
             <Button onClick={handleSave} loading={saving}>Salvar viagem</Button>

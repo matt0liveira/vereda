@@ -15,6 +15,14 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
+    if (!email || !email.includes('@')) {
+      setError('Informe um e-mail válido')
+      return
+    }
+    if (!password) {
+      setError('Informe sua senha')
+      return
+    }
     setLoading(true)
     try {
       await onLogin(email, password)
@@ -26,7 +34,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
       <div>
         <h2 className="text-[22px] font-extrabold tracking-[-0.5px] text-content">
           Bem-vindo de volta

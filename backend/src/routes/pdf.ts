@@ -25,7 +25,8 @@ pdfRouter.get('/:id/pdf', async (req: AuthRequest, res: Response) => {
     res.setHeader('Content-Type', 'application/pdf')
     res.setHeader('Content-Disposition', `attachment; filename="${safeFilename}.pdf"; filename*=UTF-8''${safeFilename}.pdf`)
     return res.send(pdf)
-  } catch {
+  } catch (err) {
+    console.error('[pdf] generate error:', err)
     return res.status(500).json({ error: 'Falha ao gerar PDF' })
   }
 })

@@ -11,6 +11,78 @@
 
   *:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.2);
+    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.25);
   }
 }
+
+/*
+ * Dark mode overrides
+ * Non-layered CSS always wins over @layer utilities — no !important needed.
+ * These rules flip every semantic color token when .dark is on <html>.
+ */
+
+/* ── Body ──────────────────────────────────────────────── */
+.dark body {
+  background-color: #0C0A09;
+  color: #FAFAF9;
+}
+
+/* ── Surfaces ──────────────────────────────────────────── */
+.dark .bg-surface-bg  { background-color: #0C0A09; }
+.dark .bg-surface     { background-color: #1C1917; }
+.dark .bg-surface-border { background-color: #292524; }
+
+/* ── Gradient from/to tokens ───────────────────────────── */
+.dark .from-surface-bg { --tw-gradient-from: #0C0A09 var(--tw-gradient-from-position); }
+
+/* ── Brand muted (active chip/pill) ───────────────────── */
+.dark .bg-brand-muted { background-color: #1C0900; }
+
+/* ── Text ──────────────────────────────────────────────── */
+.dark .text-content        { color: #FAFAF9; }
+.dark .text-content-muted  { color: #A8A29E; }
+.dark .text-content-subtle { color: #57534E; }
+.dark .text-brand          { color: #F97316; }
+.dark .text-brand-dark     { color: #EA580C; }
+.dark .text-brand-muted-text { color: #FDBA74; }
+
+/* ── Borders ───────────────────────────────────────────── */
+.dark .border-surface-border        { border-color: #292524; }
+.dark .border-surface-border-filled { border-color: #44403C; }
+.dark .border-brand                 { border-color: #F97316; }
+
+/* ── Hover / focus state overrides ───────────────────── */
+.dark .hover\:text-content:hover           { color: #FAFAF9; }
+.dark .hover\:border-brand:hover           { border-color: #F97316; }
+.dark .hover\:border-surface-border:hover  { border-color: #292524; }
+.dark .hover\:border-surface-border-filled:hover { border-color: #44403C; }
+.dark .hover\:bg-surface-border:hover      { background-color: #292524; }
+.dark .hover\:bg-brand-muted\/40:hover     { background-color: rgba(28, 9, 0, 0.4); }
+.dark .focus\:border-brand:focus           { border-color: #F97316; }
+.dark .focus\:bg-surface:focus             { background-color: #1C1917; }
+
+/* ── Status: error ─────────────────────────────────────── */
+.dark .bg-status-error-bg     { background-color: #1C0808; }
+.dark .text-status-error-text { color: #FCA5A5; }
+.dark .border-status-error-border { border-color: #7F1D1D; }
+.dark .border-status-error-text   { border-color: #FCA5A5; }
+
+/* ── Status: planned ──────────────────────────────────── */
+.dark .bg-status-planned-bg     { background-color: #0F1729; }
+.dark .text-status-planned-text { color: #93C5FD; }
+
+/* ── Status: done ─────────────────────────────────────── */
+.dark .bg-status-done-bg     { background-color: #052E16; }
+.dark .text-status-done-text { color: #86EFAC; }
+
+/* ── Status: draft ────────────────────────────────────── */
+.dark .bg-status-draft-bg     { background-color: #1C0900; }
+.dark .text-status-draft-text { color: #FDBA74; }
+
+/* ── Drag-and-drop upload zone ────────────────────────── */
+.dark .border-dashed { border-color: #44403C; }
+
+/* ── Autocomplete dropdown ────────────────────────────── */
+.dark .hover\:bg-brand-muted:hover  { background-color: #292524; }
+.dark .focus\:bg-brand-muted:focus  { background-color: #292524; }
+

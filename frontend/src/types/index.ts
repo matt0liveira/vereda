@@ -38,6 +38,9 @@ export interface Itinerary {
   cover_image?: string
 }
 
+export type Transport = 'carro-proprio' | 'uber-taxi' | 'metro-onibus' | 'aluguel-carro'
+export type Accommodation = 'hotel' | 'airbnb' | 'hostel' | 'pousada' | 'resort' | 'casa-conhecidos'
+
 export interface GenerateItineraryInput {
   title: string
   destination: string
@@ -45,5 +48,12 @@ export interface GenerateItineraryInput {
   end_date: string
   budget: Budget
   interests: Interest[]
+  transport?: Transport[]
+  accommodation?: Accommodation
+  people_count?: number
+  checkin_time?: string
+  checkout_time?: string
+  origin?: string
+  notes?: string
   cover_image?: string
 }

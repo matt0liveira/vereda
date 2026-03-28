@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Activity } from '../../types'
 import { Button } from '../UI/Button'
+import { ConfirmDialog } from '../UI/ConfirmDialog'
 
 interface ActivityCardProps {
   activity: Activity
@@ -13,6 +14,7 @@ export function ActivityCard({ activity, onUpdate, onDelete }: ActivityCardProps
   const [editingDesc, setEditingDesc] = useState(false)
   const [title, setTitle] = useState(activity.title)
   const [description, setDescription] = useState(activity.description)
+  const [confirmOpen, setConfirmOpen] = useState(false)
 
   function commitTitle() {
     setEditingTitle(false)
@@ -25,15 +27,23 @@ export function ActivityCard({ activity, onUpdate, onDelete }: ActivityCardProps
   }
 
   return (
-    <div className="flex gap-4 rounded-xl border border-surface-border bg-white p-4 shadow-sm">
+    <div className="flex gap-4 rounded-xl border border-surface-border bg-surface p-4 shadow-sm">
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Excluir atividade?"
+        description={`"${title}" será removida do roteiro.`}
+        onConfirm={() => { setConfirmOpen(false); onDelete(activity.id) }}
+        onCancel={() => setConfirmOpen(false)}
+      />
       <div className="min-w-[52px] text-sm font-bold text-brand">{activity.time}</div>
       <div className="flex-1 min-w-0">
         {editingTitle ? (
           <input
-            className="mb-1 w-full rounded border border-brand px-2 py-1 text-base font-semibold outline-none focus:border-brand"
+            className="mb-1 w-full rounded border border-brand bg-surface px-2 py-1 text-base font-semibold text-content outline-none focus:border-brand"
             value={title}
             onChange={e => setTitle(e.target.value)}
             onBlur={commitTitle}
+            onKeyDown={e => { if (e.key === 'Enter') commitTitle(); if (e.key === 'Escape') { setTitle(activity.title); setEditingTitle(false) } }}
             autoFocus
           />
         ) : (
@@ -46,11 +56,12 @@ export function ActivityCard({ activity, onUpdate, onDelete }: ActivityCardProps
 
         {editingDesc ? (
           <textarea
-            className="mb-2 w-full rounded border border-brand px-2 py-1 text-sm text-content-muted outline-none focus:border-brand"
+            className="mb-2 w-full rounded border border-brand bg-surface px-2 py-1 text-sm text-content-muted outline-none focus:border-brand"
             value={description}
             rows={3}
             onChange={e => setDescription(e.target.value)}
             onBlur={commitDesc}
+            onKeyDown={e => { if (e.key === 'Escape') { setDescription(activity.description); setEditingDesc(false) } }}
             autoFocus
           />
         ) : (
@@ -69,7 +80,7 @@ export function ActivityCard({ activity, onUpdate, onDelete }: ActivityCardProps
         </div>
       </div>
       <div className="flex-shrink-0">
-        <Button variant="danger" onClick={() => onDelete(activity.id)} className="text-xs px-2 py-1" aria-label="Excluir">
+        <Button variant="danger-outline" onClick={() => setConfirmOpen(true)} className="text-xl px-2 py-1 leading-none" aria-label="Excluir">
           ×
         </Button>
       </div>

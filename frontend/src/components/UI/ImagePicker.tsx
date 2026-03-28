@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useId } from 'react'
 import { getImageSuggestions, uploadCoverImage } from '../../services/api'
 import { Spinner } from './Spinner'
 
@@ -18,6 +18,19 @@ interface Suggestion {
   pexels_page: string
 }
 
+function pexelsPhotoId(url: string): string | null {
+  const m = url.match(/\/photos\/(\d+)\//)
+  return m ? m[1] : null
+}
+
+function isSameImage(a: string | undefined, b: string): boolean {
+  if (!a) return false
+  if (a === b) return true
+  const idA = pexelsPhotoId(a)
+  const idB = pexelsPhotoId(b)
+  return !!(idA && idB && idA === idB)
+}
+
 export function ImagePicker({ destination, value, itineraryId, onChange, onFileSelected }: ImagePickerProps) {
   const [tab, setTab] = useState<Tab>('suggestions')
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
@@ -26,7 +39,9 @@ export function ImagePicker({ destination, value, itineraryId, onChange, onFileS
   const [uploadError, setUploadError] = useState('')
   const [uploadLoading, setUploadLoading] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [dragging, setDragging] = useState(false)
   const objectUrlRef = useRef<string | null>(null)
+  const fileInputId = useId()
 
   useEffect(() => {
     if (!destination) return
@@ -118,7 +133,7 @@ export function ImagePicker({ destination, value, itineraryId, onChange, onFileS
                     type="button"
                     onClick={() => onChange(s.url)}
                     className={`overflow-hidden rounded-[8px] border-2 transition-colors ${
-                      value === s.url ? 'border-brand' : 'border-transparent hover:border-surface-border'
+                      isSameImage(value, s.url) ? 'border-brand' : 'border-transparent hover:border-surface-border'
                     }`}
                   >
                     <img src={s.url} alt={`Sugestão ${i + 1}`} className="h-[80px] w-full object-cover" />
@@ -141,18 +156,40 @@ export function ImagePicker({ destination, value, itineraryId, onChange, onFileS
       {tab === 'upload' && (
         <div>
           <input
+            id={fileInputId}
             type="file"
             accept="image/jpeg,image/png,image/webp,image/gif"
             onChange={handleFileChange}
-            className="mb-2 text-sm text-content-muted"
+            className="sr-only"
           />
-          {uploadError && <p className="mt-1 text-xs text-status-error-text">{uploadError}</p>}
-          {uploadLoading && <p className="mt-2 text-sm text-content-muted">Enviando...</p>}
-          {(previewUrl || (value && !value.startsWith('blob:') && itineraryId)) && (
+          <label
+            htmlFor={fileInputId}
+            onDragOver={e => { e.preventDefault(); setDragging(true) }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={e => {
+              e.preventDefault()
+              setDragging(false)
+              const file = e.dataTransfer.files?.[0]
+              if (file) handleFileChange({ target: { files: e.dataTransfer.files } } as React.ChangeEvent<HTMLInputElement>)
+            }}
+            className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-[10px] border-2 border-dashed px-4 py-6 transition-colors ${
+              dragging ? 'border-brand bg-brand-muted' : 'border-surface-border hover:border-brand hover:bg-brand-muted/40'
+            }`}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-content-muted">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <p className="text-[13px] font-medium text-content-muted">
+              {uploadLoading ? 'Enviando...' : 'Arraste uma imagem ou clique para selecionar'}
+            </p>
+            <p className="text-[11px] text-content-subtle">JPG, PNG, WebP ou GIF — máx. 5 MB</p>
+          </label>
+          {uploadError && <p className="mt-2 text-xs text-status-error-text">{uploadError}</p>}
+          {previewUrl && (
             <img
-              src={previewUrl || value}
+              src={previewUrl}
               alt="Preview"
-              className="mt-2 h-[80px] w-full rounded-[8px] object-cover"
+              className="mt-3 h-[80px] w-full rounded-[8px] object-cover"
             />
           )}
         </div>

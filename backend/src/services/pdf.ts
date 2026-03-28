@@ -1,113 +1,110 @@
-import puppeteer from 'puppeteer-core'
+import PDFDocument from 'pdfkit'
 import { Itinerary } from '../types'
 
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
-}
+const BRAND   = '#EA580C'
+const DARK    = '#1C1917'
+const MUTED   = '#78716C'
+const SUBTLE  = '#A8A29E'
+const LIGHT   = '#F5F5F4'
+const DIVIDER = '#E7E5E4'
 
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr + 'T00:00:00')
   return date.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
 }
 
-function buildHtml(itinerary: Itinerary): string {
-  const { title, destination, start_date, end_date, budget, content } = itinerary
-
-  const budgetLabels: Record<string, string> = {
-    economico: 'Econômico',
-    moderado: 'Moderado',
-    luxo: 'Luxo',
-  }
-
-  const daysHtml = content.days.map(day => {
-    const activitiesHtml = day.activities.map(act => `
-      <div class="activity">
-        <div class="activity-time">${escapeHtml(act.time)}</div>
-        <div class="activity-details">
-          <h3>${escapeHtml(act.title)}</h3>
-          <p>${escapeHtml(act.description)}</p>
-          <div class="location">
-            <strong>📍 ${escapeHtml(act.location.name)}</strong><br/>
-            ${escapeHtml(act.location.address)}<br/>
-            <span class="maps-url">${escapeHtml(act.location.mapsUrl)}</span>
-          </div>
-        </div>
-      </div>
-    `).join('')
-
-    return `
-      <div class="day">
-        <h2>Dia ${escapeHtml(String(day.day))} — ${escapeHtml(formatDate(day.date))}</h2>
-        ${activitiesHtml}
-      </div>
-    `
-  }).join('')
-
-  return `<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8"/>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 40px; color: #1e293b; }
-    .header { border-bottom: 3px solid #2563EB; padding-bottom: 16px; margin-bottom: 24px; }
-    .header h1 { color: #2563EB; margin: 0 0 8px; font-size: 28px; }
-    .header .meta { color: #64748b; font-size: 14px; }
-    .day { margin-bottom: 32px; }
-    .day h2 { color: #1D4ED8; border-left: 4px solid #F97316; padding-left: 12px; font-size: 18px; }
-    .activity { display: flex; gap: 16px; margin-bottom: 16px; padding: 12px; background: #f8fafc; border-radius: 8px; }
-    .activity-time { font-weight: bold; color: #F97316; min-width: 50px; font-size: 14px; }
-    .activity-details h3 { margin: 0 0 4px; font-size: 16px; }
-    .activity-details p { margin: 0 0 8px; color: #475569; font-size: 14px; }
-    .location { font-size: 12px; color: #64748b; }
-    .maps-url { color: #2563EB; word-break: break-all; }
-    .footer { margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 12px; text-align: center; color: #94a3b8; font-size: 12px; }
-    @media print { body { margin: 20px; } }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <h1>${escapeHtml(title)}</h1>
-    <div class="meta">
-      📍 ${escapeHtml(destination)} &nbsp;|&nbsp;
-      📅 ${escapeHtml(formatDate(start_date))} até ${escapeHtml(formatDate(end_date))} &nbsp;|&nbsp;
-      💰 ${escapeHtml(budgetLabels[budget])}
-    </div>
-  </div>
-  ${daysHtml}
-  <div class="footer">Gerado pelo Travel AI</div>
-</body>
-</html>`
+const BUDGET_LABELS: Record<string, string> = {
+  economico: 'Econômico',
+  moderado:  'Moderado',
+  luxo:      'Luxo',
 }
 
 export async function generatePdf(itinerary: Itinerary): Promise<Buffer> {
-  const isVercel = process.env.VERCEL === '1'
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ margin: 48, size: 'A4', info: { Title: itinerary.title } })
+    const chunks: Buffer[] = []
+    doc.on('data', (chunk: Buffer) => chunks.push(chunk))
+    doc.on('end', () => resolve(Buffer.concat(chunks)))
+    doc.on('error', reject)
 
-  let executablePath: string | undefined
-  let args: string[] = []
+    const W = doc.page.width - 96 // usable width
 
-  if (isVercel) {
-    const chromium = await import('@sparticuz/chromium')
-    executablePath = await chromium.default.executablePath()
-    args = chromium.default.args
-  }
+    // ── Header bar ──────────────────────────────────────────
+    doc.rect(48, 48, W, 56).fill(BRAND)
 
-  const browser = await puppeteer.launch({
-    executablePath: executablePath || undefined,
-    args: isVercel ? args : ['--no-sandbox', '--disable-setuid-sandbox'],
-    headless: true,
+    doc.fillColor('#FFFFFF')
+       .fontSize(20).font('Helvetica-Bold')
+       .text(itinerary.title, 64, 58, { width: W - 32, lineBreak: false })
+
+    const meta = [
+      itinerary.destination,
+      `${formatDate(itinerary.start_date)} — ${formatDate(itinerary.end_date)}`,
+      BUDGET_LABELS[itinerary.budget] ?? itinerary.budget,
+    ].join('   |   ')
+
+    doc.fontSize(8).font('Helvetica')
+       .text(meta, 64, 80, { width: W - 32, lineBreak: false })
+
+    doc.moveDown(3.5)
+
+    // ── Days ────────────────────────────────────────────────
+    for (const day of itinerary.content.days) {
+      if (doc.y > doc.page.height - 120) doc.addPage()
+
+      const dayY = doc.y
+
+      // Day heading accent bar
+      doc.rect(48, dayY, 4, 22).fill(BRAND)
+
+      doc.fillColor(DARK).fontSize(13).font('Helvetica-Bold')
+         .text(`Dia ${day.day}  —  ${formatDate(day.date)}`, 60, dayY + 3, { width: W - 12 })
+
+      doc.moveDown(0.6)
+
+      for (const act of day.activities) {
+        if (doc.y > doc.page.height - 100) doc.addPage()
+
+        const actY = doc.y
+
+        // Activity card background
+        doc.rect(48, actY, W, 1).fill(DIVIDER)
+        doc.moveDown(0.15)
+
+        const rowY = doc.y
+
+        // Time pill
+        doc.roundedRect(48, rowY, 44, 16, 4).fill(LIGHT)
+        doc.fillColor(BRAND).fontSize(8).font('Helvetica-Bold')
+           .text(act.time, 48, rowY + 4, { width: 44, align: 'center' })
+
+        // Title
+        doc.fillColor(DARK).fontSize(11).font('Helvetica-Bold')
+           .text(act.title, 100, rowY, { width: W - 52 })
+
+        doc.moveDown(0.25)
+
+        // Description
+        doc.fillColor(MUTED).fontSize(9).font('Helvetica')
+           .text(act.description, 100, doc.y, { width: W - 52 })
+
+        doc.moveDown(0.2)
+
+        // Location
+        doc.fillColor(SUBTLE).fontSize(8)
+           .text(`${act.location.name}  ·  ${act.location.address}`, 100, doc.y, { width: W - 52 })
+
+        doc.moveDown(0.6)
+      }
+
+      doc.moveDown(0.8)
+    }
+
+    // ── Footer ──────────────────────────────────────────────
+    const footerY = doc.page.height - 36
+    doc.rect(48, footerY - 8, W, 0.5).fill(DIVIDER)
+    doc.fillColor(SUBTLE).fontSize(8).font('Helvetica')
+       .text('Gerado pela Vereda', 48, footerY, { width: W, align: 'center' })
+
+    doc.end()
   })
-
-  try {
-    const page = await browser.newPage()
-    await page.setContent(buildHtml(itinerary), { waitUntil: 'networkidle0' })
-    const pdf = await page.pdf({ format: 'A4', printBackground: true, margin: { top: '20px', bottom: '20px', left: '20px', right: '20px' } })
-    return Buffer.from(pdf)
-  } finally {
-    await browser.close()
-  }
 }

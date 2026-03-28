@@ -8,9 +8,12 @@ interface Suggestion {
 interface Props {
   value: string
   onChange: (value: string) => void
+  label?: string
+  required?: boolean
+  hasError?: boolean
 }
 
-export function DestinationAutocomplete({ value, onChange }: Props) {
+export function DestinationAutocomplete({ value, onChange, label = 'Destino', required = false, hasError = false }: Props) {
   const [query, setQuery] = useState(value)
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const [open, setOpen] = useState(false)
@@ -66,10 +69,21 @@ export function DestinationAutocomplete({ value, onChange }: Props) {
         // Prefer cities, towns, administrative areas
         const filtered = data
           .filter(d => ['city', 'town', 'village', 'municipality', 'administrative'].includes(d.type) || d.class === 'place' || d.class === 'boundary')
-          .slice(0, 6)
 
-        setSuggestions(filtered.length > 0 ? filtered : data.slice(0, 6))
-        setOpen(filtered.length > 0 || data.length > 0)
+        const pool = filtered.length > 0 ? filtered : data
+
+        // Deduplicate by formatted label (City, Country)
+        const seen = new Set<string>()
+        const deduped = pool.filter(d => {
+          const parts = d.display_name.split(',').map((s: string) => s.trim())
+          const key = `${parts[0]},${parts[parts.length - 1]}`
+          if (seen.has(key)) return false
+          seen.add(key)
+          return true
+        }).slice(0, 6)
+
+        setSuggestions(deduped)
+        setOpen(deduped.length > 0)
       } catch {
         setSuggestions([])
       } finally {
@@ -101,7 +115,7 @@ export function DestinationAutocomplete({ value, onChange }: Props) {
   return (
     <div ref={containerRef} className="relative">
       <label className="mb-1.5 block text-[13px] font-semibold text-content">
-        Destino <span className="text-status-error-text">*</span>
+        {label}{required && <span className="text-status-error-text"> *</span>}
       </label>
       <div className="relative">
         <input
@@ -109,11 +123,11 @@ export function DestinationAutocomplete({ value, onChange }: Props) {
           value={query}
           onChange={handleInputChange}
           onFocus={() => suggestions.length > 0 && setOpen(true)}
-          placeholder="Digite a cidade ou destino..."
-          required
-          aria-label="Destino"
+          placeholder="Digite a cidade..."
+          required={required}
+          aria-label={label}
           autoComplete="off"
-          className="w-full border-[1.5px] border-surface-border bg-surface-bg rounded-[9px] px-3.5 py-2.5 pr-8 text-sm text-content outline-none focus:border-brand placeholder:text-content-subtle"
+          className={`w-full border-[1.5px] rounded-[9px] px-3.5 py-2.5 pr-8 text-sm text-content outline-none placeholder:text-content-subtle ${hasError ? 'border-status-error-text bg-surface' : 'border-surface-border bg-surface-bg focus:border-brand'}`}
         />
         {loading && (
           <div className="absolute right-2.5 top-1/2 -translate-y-1/2">

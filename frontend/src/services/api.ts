@@ -94,6 +94,18 @@ export async function downloadPdf(id: string, filename: string): Promise<void> {
   URL.revokeObjectURL(url)
 }
 
+export async function regenerateItinerary(id: string, input: GenerateItineraryInput): Promise<Itinerary> {
+  const headers = await getAuthHeaders()
+  const res = await fetch(`${API_URL}/api/itineraries/${id}/regenerate`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(input),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error || 'Erro ao gerar roteiro')
+  return data
+}
+
 export async function getImageSuggestions(destination: string): Promise<
   { url: string; photographer: string; pexels_page: string }[]
 > {

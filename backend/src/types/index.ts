@@ -45,6 +45,13 @@ export interface GenerateItineraryRequest {
   budget: 'economico' | 'moderado' | 'luxo'
   interests: string[]
   title: string
+  transport?: string
+  accommodation?: string
+  people_count?: number
+  checkin_time?: string
+  checkout_time?: string
+  origin?: string
+  notes?: string
 }
 
 export interface AuthRequest extends Request {

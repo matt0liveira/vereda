@@ -5,7 +5,17 @@
       "Read(//c/Users/MatheusVieir_0p7jj2e/.claude/projects/C--travel-ai/memory/**)",
       "Bash(cd /c/travel-ai/frontend && npm install 2>&1)",
       "Bash(cd /c/travel-ai/backend && npm install 2>&1)",
-      "Bash(git init:*)"
+      "Bash(git init:*)",
+      "Bash(npm list:*)",
+      "Bash(cd /c/travel-ai/backend && npm test 2>&1)",
+      "Bash(git add:*)",
+      "Bash(cd /c/travel-ai/frontend && npm test 2>&1)",
+      "Bash(curl -s http://localhost:3000 -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s http://localhost:5173 -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s http://localhost:4000 -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s http://localhost:3001/api/itineraries -o /dev/null -w \"%{http_code}\")",
+      "WebFetch(domain:localhost)",
+      "Bash(curl -s -X POST \"https://sauuljeweqdzqyesepjk.supabase.co/auth/v1/signup\" -H \"apikey: sb_publishable_P8rHrSSwh29WOr7koenD6w_0tIGwf7t\" -H \"Content-Type: application/json\" --data-raw '{\"\"email\"\":\"\"test_e2e_delete@gmail.com\"\",\"\"password\"\":\"\"TestPass123x\"\"}')"
     ]
   }
 }

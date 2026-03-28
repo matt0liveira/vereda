@@ -6,7 +6,7 @@ import { formatDate } from '../../utils/date'
 
 interface TripCardProps {
   itinerary: Itinerary
-  onDelete: (id: string) => void
+  onDelete: (itinerary: Itinerary) => void
   view: 'grid' | 'list'
 }
 
@@ -97,7 +97,7 @@ export function TripCard({ itinerary, onDelete, view }: TripCardProps) {
             </button>
           </Link>
           <button
-            onClick={() => onDelete(itinerary.id)}
+            onClick={() => onDelete(itinerary)}
             className="flex h-8 w-8 items-center justify-center rounded-lg border border-surface-border bg-surface text-content-muted transition-colors hover:text-status-error-text"
             aria-label="Excluir viagem"
           >
@@ -125,7 +125,7 @@ export function TripCard({ itinerary, onDelete, view }: TripCardProps) {
           <PhotoFallback />
         )}
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 60%)' }} />
-        <span className="absolute right-2.5 top-2.5 rounded-full bg-white/90 px-2.5 py-0.5 text-[11px] font-bold text-content">
+        <span className="absolute right-2.5 top-2.5 rounded-full bg-white/90 px-2.5 py-0.5 text-[11px] font-bold text-[#1C1917]">
           {formatDate(itinerary.start_date)} – {formatDate(itinerary.end_date)}
         </span>
       </div>
@@ -144,7 +144,7 @@ export function TripCard({ itinerary, onDelete, view }: TripCardProps) {
           <Link to={`/preview/${itinerary.id}`} className="flex-1">
             <Button variant="secondary" className="w-full text-xs">Ver roteiro</Button>
           </Link>
-          <Button variant="danger" onClick={() => onDelete(itinerary.id)} className="text-xs">
+          <Button variant="danger" onClick={() => onDelete(itinerary)} className="text-xs">
             Excluir
           </Button>
         </div>
