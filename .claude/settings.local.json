@@ -15,7 +15,8 @@
       "Bash(curl -s http://localhost:4000 -o /dev/null -w \"%{http_code}\")",
       "Bash(curl -s http://localhost:3001/api/itineraries -o /dev/null -w \"%{http_code}\")",
       "WebFetch(domain:localhost)",
-      "Bash(curl -s -X POST \"https://sauuljeweqdzqyesepjk.supabase.co/auth/v1/signup\" -H \"apikey: sb_publishable_P8rHrSSwh29WOr7koenD6w_0tIGwf7t\" -H \"Content-Type: application/json\" --data-raw '{\"\"email\"\":\"\"test_e2e_delete@gmail.com\"\",\"\"password\"\":\"\"TestPass123x\"\"}')"
+      "Bash(curl -s -X POST \"https://sauuljeweqdzqyesepjk.supabase.co/auth/v1/signup\" -H \"apikey: sb_publishable_P8rHrSSwh29WOr7koenD6w_0tIGwf7t\" -H \"Content-Type: application/json\" --data-raw '{\"\"email\"\":\"\"test_e2e_delete@gmail.com\"\",\"\"password\"\":\"\"TestPass123x\"\"}')",
+      "Bash(grep -r \"export.*function\\\\|export.*interface\\\\|export const\" /c/vereda/frontend/src/types*)"
     ]
   }
 }
